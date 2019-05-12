@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.management.relation.Relation;
+
 import com.yychat.model.Message;
 import com.yychat.model.User;
 
@@ -73,7 +75,18 @@ public class StartServer {
 				if(loginSuccess)
 				{//对象比较
 					//告诉客户端密码验证通过的消息，可以创建Message类				
-					mess.setMessageType(Message.message_LoginSuccess);//"1"为验证通过				
+					mess.setMessageType(Message.message_LoginSuccess);//"1"为验证通过
+					
+					String friend_Relation_Sql="select slaveuser from relation where majoruser=? and relationtype='1'";
+					ptmt=conn.prepareStatement(user_Login_Sql);
+					ptmt.setString(1,userName);
+					ptmt.executeQuery();
+					String friendString="";
+					while(rs.next()){
+						friendString=friendString+rs.getString("slaveuser")+" ";
+					}
+					mess.setContent(friendString);
+					System.out.println(userName+"的数据表中的好友"+friendString);
 				}else {
 					mess.setMessageType(Message.message_LoginFailure);//"0"为验证不通过		
 				}
@@ -90,7 +103,7 @@ public class StartServer {
 					
 				    //拿到已经登录在线的用户名字
 					Set onlineFriendSet=hmSocket.keySet();
-					//Iterator it=onlineFriendSet.iterator();
+					//Iterator it=onlineFriendSegt.iterator();
 					//Iterator it=onlineFriendSet.iterator();
 					Iterator it=onlineFriendSet.iterator();
 					String friendName;
